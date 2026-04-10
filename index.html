@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CALLE 2207 — Pedidos Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --primary:      #E8873A;
+    --secondary:    #F2C14E;
+    --primary-dim:  rgba(232,135,58,0.18);
+    --bg:           #1A1612;
+    --bg-mid:       #211D18;
+    --card-bg:      #2A2420;
+    --card-border:  #3A3028;
+    --card-hover:   #332C26;
+    --text:         #F0EAE0;
+    --text-muted:   rgba(240,234,224,0.45);
+    --text-soft:    rgba(240,234,224,0.72);
+    --green-wa:     #25D366;
+    --green-wa-dk:  #128C7E;
+    --radius:       18px;
+    --radius-sm:    12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes float {
+    0%,100% { transform: translateY(0px) rotate(0deg); }
+    33%      { transform: translateY(-9px) rotate(1deg); }
+    66%      { transform: translateY(-4px) rotate(-1deg); }
+  }
+  @keyframes flicker {
+    0%,100% { opacity:1; transform:scale(1); }
+    20%     { opacity:.65; transform:scale(.93); }
+    50%     { opacity:1; transform:scale(1.07); }
+    80%     { opacity:.75; transform:scale(.97); }
+  }
+  @keyframes pulse-wa {
+    0%,100% { box-shadow:0 0 0 0 rgba(37,211,102,.55); }
+    50%     { box-shadow:0 0 0 15px rgba(37,211,102,0); }
+  }
+  @keyframes glowPulse {
+    0%,100% { filter: drop-shadow(0 0 16px rgba(232,135,58,.55)) drop-shadow(0 0 36px rgba(242,193,78,.25)); }
+    50%     { filter: drop-shadow(0 0 26px rgba(232,135,58,.85)) drop-shadow(0 0 56px rgba(242,193,78,.4)); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes summaryIn {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes toastDrop {
+    from { opacity:0; transform:translateX(-50%) translateY(-28px) scale(.94); }
+    to   { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── NAVBAR (desktop only) ── */
+  .navbar { display: none; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 44px 20px 38px;
+    text-align: center;
+    background:
+      radial-gradient(ellipse 80% 55% at 50% -10%, rgba(232,135,58,.28) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(242,193,78,.1) 0%, transparent 60%);
+    overflow: hidden;
+  }
+
+  /* decorative blurred circles */
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(232,135,58,.12) 0%, transparent 70%);
+    border-radius: 50%;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(232,135,58,.14);
+    border: 1px solid rgba(232,135,58,.35);
+    color: var(--secondary);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    border-radius: 50px;
+    margin-bottom: 22px;
+    animation: fadeUp .7s ease both;
+  }
+
+  .hero-logo {
+    width: 118px;
+    height: 118px;
+    object-fit: contain;
+    border-radius: 50%;
+    animation: glowPulse 3s ease-in-out infinite, float 5s ease-in-out infinite;
+    margin-bottom: 18px;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(58px, 16vw, 108px);
+    line-height: .92;
+    letter-spacing: -.01em;
+    background: linear-gradient(135deg, #F0EAE0 0%, var(--primary) 50%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    animation: fadeUp .8s .1s ease both;
+  }
+
+  .hero-slogan {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    animation: fadeUp .8s .2s ease both;
+  }
+
+  .hero-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    color: var(--text-soft);
+    text-decoration: none;
+    margin-bottom: 28px;
+    transition: border-color .22s, color .22s, background .22s;
+    animation: fadeUp .8s .3s ease both;
+  }
+  .hero-location:hover {
+    border-color: var(--primary);
+    background: var(--primary-dim);
+    color: var(--text);
+  }
+  .hero-location i { color: var(--primary); font-size: 12px; }
+
+  .hero-emojis {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    font-size: 26px;
+    animation: fadeUp .8s .4s ease both;
+  }
+  .hero-emojis span { display: inline-block; }
+  .hero-emojis span:nth-child(1) { animation: flicker 2.6s ease-in-out infinite; }
+  .hero-emojis span:nth-child(2) { animation: flicker 2.6s ease-in-out infinite .5s; }
+  .hero-emojis span:nth-child(3) { animation: flicker 2.6s ease-in-out infinite 1s; }
+  .hero-emojis span:nth-child(4) { animation: flicker 2.6s ease-in-out infinite 1.5s; }
+  .hero-emojis span:nth-child(5) { animation: flicker 2.6s ease-in-out infinite 2s; }
+
+  /* ── SECTION COMMONS ── */
+  .section { padding: 30px 16px; }
+
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .section-eyebrow::before,
+  .section-eyebrow::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 24px;
+    background: var(--primary);
+    opacity: .5;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 34px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .section-title .accent { color: var(--primary); }
+
+  .section-divider {
+    height: 2px;
+    width: 48px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .section-subtitle {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 22px;
+  }
+
+  /* ── COMBO CARDS ── */
+  .combos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .combo-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 22px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease, background .24s;
+  }
+  .combo-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(232,135,58,.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .combo-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    background: var(--card-hover);
+    box-shadow: 0 12px 36px rgba(232,135,58,.18), 0 2px 8px rgba(0,0,0,.4);
+  }
+
+  .combo-ribbon {
+    position: absolute;
+    top: 16px; right: 0;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #1A1612;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 5px 14px 5px 10px;
+    border-radius: 4px 0 0 4px;
+  }
+
+  .combo-emoji {
+    font-size: 42px;
+    display: block;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  .combo-card:nth-child(1) .combo-emoji { animation: float 4s ease-in-out infinite; }
+  .combo-card:nth-child(2) .combo-emoji { animation: float 4s ease-in-out infinite .9s; }
+  .combo-card:nth-child(3) .combo-emoji { animation: float 4s ease-in-out infinite 1.8s; }
+
+  .combo-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 5px;
+    padding-right: 80px;
+    line-height: 1.2;
+  }
+
+  .combo-desc {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 14px;
+    line-height: 1.45;
+  }
+
+  .combo-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .combo-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    color: var(--secondary);
+    letter-spacing: .02em;
+    line-height: 1;
+  }
+  .combo-price-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+
+  .combo-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: #1A1612;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-align: center;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s, box-shadow .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .combo-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+    background-size: 200% auto;
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .combo-btn:hover::after { opacity: 1; animation: shimmer 1s linear infinite; }
+  .combo-btn:hover { opacity: .95; transform: scale(1.01); }
+  .combo-btn:active { transform: scale(.97); }
+
+  /* ── FIRE SEP ── */
+  .fire-sep {
+    text-align: center;
+    font-size: 26px;
+    opacity: .3;
+    letter-spacing: 14px;
+    padding: 6px 0;
+  }
+
+  /* ── ORDER CARD ── */
+  .order-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .order-group { padding: 16px 16px 10px; }
+  .order-group:nth-child(even) { background: rgba(0,0,0,.14); }
+
+  .group-label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+  .group-label i {
+    color: var(--secondary);
+    font-size: 13px;
+    width: 20px;
+    text-align: center;
+  }
+  .group-label span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+  .group-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,.08);
+  }
+
+  .product-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .product-row:last-child { border-bottom: none; }
+
+  .product-info { flex: 1; min-width: 0; }
+  .product-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .product-price {
+    font-size: 12px;
+    color: var(--secondary);
+    font-weight: 600;
+    margin-top: 1px;
+    opacity: .85;
+  }
+
+  .stepper {
+    display: flex;
+    align-items: center;
+    background: rgba(0,0,0,.35);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 50px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .stepper-btn {
+    background: var(--primary);
+    color: #1A1612;
+    border: none;
+    width: 33px;
+    height: 33px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background .15s, transform .1s;
+  }
+  .stepper-btn:first-child { border-radius: 50px 0 0 50px; }
+  .stepper-btn:last-child  { border-radius: 0 50px 50px 0; }
+  .stepper-btn:hover { background: #d4762e; }
+  .stepper-btn:active { transform: scale(.92); }
+  .stepper-qty {
+    min-width: 34px;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 19px;
+    color: var(--text);
+    padding: 0 3px;
+    user-select: none;
+  }
+
+  /* ── SUMMARY ── */
+  .order-summary-wrapper {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .38s cubic-bezier(.4,0,.2,1);
+  }
+  .order-summary-wrapper.visible { max-height: 700px; }
+
+  .order-summary {
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,.07);
+    background: rgba(0,0,0,.2);
+  }
+  .summary-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    animation: summaryIn .22s ease both;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .s-name { color: var(--text-soft); }
+  .summary-row .s-price { color: var(--secondary); font-weight: 700; font-size: 13px; }
+
+  /* ── TOTAL ── */
+  .total-box {
+    margin: 12px 16px 0;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, rgba(232,135,58,.1) 0%, rgba(0,0,0,.3) 100%);
+    border: 2px solid rgba(232,135,58,.4);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .total-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-soft);
+  }
+  .total-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .total-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    color: var(--secondary);
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+
+  /* ── ACTION BUTTONS ── */
+  .btn-wa {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: calc(100% - 32px);
+    margin: 14px 16px 10px;
+    padding: 15px;
+    background: linear-gradient(90deg, var(--green-wa-dk), var(--green-wa));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity .2s, transform .15s, box-shadow .2s;
+  }
+  .btn-wa:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-wa:not(:disabled):hover {
+    opacity: .92;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,211,102,.3);
+  }
+  .btn-wa:not(:disabled):active { transform: scale(.97); }
+  .btn-wa i { font-size: 20px; }
+
+  .btn-location {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: calc(100% - 32px);
+    margin: 0 16px 16px;
+    padding: 13px;
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid rgba(232,135,58,.5);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .2s, color .2s, border-color .2s;
+  }
+  .btn-location:hover {
+    background: var(--primary);
+    color: #1A1612;
+    border-color: var(--primary);
+  }
+
+  /* ── SOCIAL ── */
+  .social-section {
+    padding: 22px 16px 6px;
+    text-align: center;
+  }
+  .social-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .social-btns {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 2px solid;
+    transition: transform .16s, box-shadow .2s, background .2s, color .2s;
+    cursor: pointer;
+    letter-spacing: .03em;
+  }
+  .social-btn:hover { transform: translateY(-3px); }
+  .social-btn:active { transform: scale(.95); }
+
+  .social-btn.tiktok {
+    color: var(--text);
+    border-color: rgba(240,234,224,.2);
+    background: rgba(255,255,255,.05);
+  }
+  .social-btn.tiktok:hover {
+    background: rgba(255,255,255,.1);
+    border-color: rgba(240,234,224,.4);
+    box-shadow: 0 4px 16px rgba(240,234,224,.1);
+  }
+  .social-btn.instagram {
+    color: var(--primary);
+    border-color: rgba(232,135,58,.4);
+    background: rgba(232,135,58,.08);
+  }
+  .social-btn.instagram:hover {
+    background: var(--primary);
+    color: #1A1612;
+    border-color: var(--primary);
+    box-shadow: 0 4px 16px rgba(232,135,58,.3);
+  }
+  .social-btn.facebook {
+    color: var(--secondary);
+    border-color: rgba(242,193,78,.35);
+    background: rgba(242,193,78,.07);
+  }
+  .social-btn.facebook:hover {
+    background: var(--secondary);
+    color: #1A1612;
+    border-color: var(--secondary);
+    box-shadow: 0 4px 16px rgba(242,193,78,.25);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 24px 16px 90px;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.9;
+    border-top: 1px solid rgba(255,255,255,.05);
+    margin-top: 8px;
+  }
+
+  /* ── FLOATING WA ── */
+  .float-wa {
+    position: fixed;
+    bottom: 22px;
+    right: 18px;
+    width: 58px;
+    height: 58px;
+    background: var(--green-wa);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 28px;
+    text-decoration: none;
+    z-index: 999;
+    animation: pulse-wa 2.2s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(37,211,102,.4);
+    transition: transform .15s;
+  }
+  .float-wa:hover { transform: scale(1.09); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-60px);
+    background: var(--card-bg);
+    border: 1.5px solid var(--primary);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 50px;
+    z-index: 9999;
+    opacity: 0;
+    transition: transform .36s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 6px 24px rgba(0,0,0,.4);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ════════════════════════════════
+     DESKTOP ≥ 820px
+  ════════════════════════════════ */
+  @media (min-width: 820px) {
+    .navbar {
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 36px;
+      height: 66px;
+      background: rgba(26,22,18,.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(232,135,58,.18);
+    }
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 24px;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -.01em;
+    }
+    .navbar-brand .accent { color: var(--primary); }
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      list-style: none;
+    }
+    .navbar-links a {
+      color: var(--text-soft);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 50px;
+      transition: color .2s, background .2s;
+    }
+    .navbar-links a:hover { color: var(--text); background: rgba(255,255,255,.07); }
+    .navbar-links .nav-wa {
+      background: var(--green-wa);
+      color: #fff;
+      padding: 7px 16px;
+    }
+    .navbar-links .nav-wa:hover { background: #1ebe5e; }
+
+    .desktop-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: 1fr 450px;
+      gap: 36px;
+      align-items: start;
+    }
+    .desktop-left { min-width: 0; }
+    .desktop-right {
+      position: sticky;
+      top: 82px;
+      max-height: calc(100vh - 106px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary) transparent;
+    }
+    .desktop-right::-webkit-scrollbar { width: 4px; }
+    .desktop-right::-webkit-scrollbar-track { background: transparent; }
+    .desktop-right::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+
+    .hero { padding: 60px 28px 44px; }
+    .hero-title { font-size: clamp(72px, 9vw, 116px); }
+
+    .combos-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .combo-card { display: flex; flex-direction: column; }
+    .combo-desc { flex: 1; font-size: 12px; }
+    .combo-name { font-size: 18px; padding-right: 55px; }
+    .combo-emoji { font-size: 38px; }
+
+    .fire-sep { display: none; }
+
+    .social-section { padding: 18px 28px 4px; }
+
+    footer {
+      padding-bottom: 44px;
+      margin-top: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="#hero" class="navbar-brand">CALLE <span class="accent">2207</span></a>
+  <ul class="navbar-links">
+    <li><a href="#combos">Combos</a></li>
+    <li><a href="#order">Armá tu Pedido</a></li>
+    <li><a href="https://maps.app.goo.gl/yFP6BaSav4s9nHeB9" target="_blank"><i class="fas fa-map-marker-alt"></i> Ubicación</a></li>
+    <li><a href="https://wa.me/595972504623" target="_blank" class="nav-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+  </ul>
+</nav>
+
+<div class="desktop-grid">
+
+<!-- LEFT COLUMN -->
+<div class="desktop-left">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-badge"><i class="fas fa-pizza-slice" style="font-size:10px"></i> Pedidos Online</div>
+    <img class="hero-logo" src="https://i.ibb.co/N2d289qN/20260409-020926.png" alt="Calle 2207 Logo" onerror="this.style.display='none'">
+    <h1 class="hero-title">CALLE<br>2207</h1>
+    <p class="hero-slogan">Pasión por el fuego</p>
+    <a href="https://maps.app.goo.gl/yFP6BaSav4s9nHeB9" target="_blank" class="hero-location">
+      <i class="fas fa-map-marker-alt"></i>
+      Azara c/ Antequera, Asunción
+    </a>
+    <div class="hero-emojis">
+      <span>🍕</span><span>🔥</span><span>🧀</span><span>🔥</span><span>🍕</span>
+    </div>
+  </section>
+
+  <!-- COMBOS -->
+  <section class="section" id="combos">
+    <div class="section-eyebrow">Ofertas especiales</div>
+    <h2 class="section-title">NUESTROS <span class="accent">COMBOS</span></h2>
+    <div class="section-divider"></div>
+    <p class="section-subtitle">Hacé click en un combo para agregarlo a tu pedido</p>
+
+    <div class="combos-grid">
+
+      <!-- Combo 1 -->
+      <div class="combo-card" onclick="addCombo(1)">
+        <span class="combo-ribbon">⭐ CLÁSICO</span>
+        <span class="combo-emoji">🍕</span>
+        <div class="combo-name">Combo "2207"</div>
+        <div class="combo-desc">1 Pizza Familiar Pepperoni + 1 Gaseosa 1.5L</div>
+        <div class="combo-price-row">
+          <div class="combo-price">₲ 55.000</div>
+          <div class="combo-price-label">por combo</div>
+        </div>
+        <button class="combo-btn" onclick="event.stopPropagation();addCombo(1)">
+          <i class="fas fa-plus" style="font-size:11px;margin-right:4px"></i>Agregar combo
+        </button>
+      </div>
+
+      <!-- Combo 2 -->
+      <div class="combo-card" onclick="addCombo(2)">
+        <span class="combo-ribbon">🔥 ESPECIAL</span>
+        <span class="combo-emoji">🍕🍕</span>
+        <div class="combo-name">Dúo Dinámico</div>
+        <div class="combo-desc">2 Pizzas Medianas (Muzzarella y Jamón)</div>
+        <div class="combo-price-row">
+          <div class="combo-price">₲ 90.000</div>
+          <div class="combo-price-label">por combo</div>
+        </div>
+        <button class="combo-btn" onclick="event.stopPropagation();addCombo(2)">
+          <i class="fas fa-plus" style="font-size:11px;margin-right:4px"></i>Agregar combo
+        </button>
+      </div>
+
+      <!-- Combo 3 -->
+      <div class="combo-card" onclick="addCombo(3)">
+        <span class="combo-ribbon">🍺 AFTER</span>
+        <span class="combo-emoji">🍕🍺</span>
+        <div class="combo-name">After Office</div>
+        <div class="combo-desc">1 Pizza Familiar Tradicional + 2 Cervezas 600ml</div>
+        <div class="combo-price-row">
+          <div class="combo-price">₲ 110.000</div>
+          <div class="combo-price-label">por combo</div>
+        </div>
+        <button class="combo-btn" onclick="event.stopPropagation();addCombo(3)">
+          <i class="fas fa-plus" style="font-size:11px;margin-right:4px"></i>Agregar combo
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SOCIAL -->
+  <div class="social-section">
+    <p class="social-label">Seguinos en nuestras redes:</p>
+    <div class="social-btns">
+      <a href="https://wa.me/595972504623" target="_blank" class="social-btn tiktok">
+        <i class="fab fa-tiktok"></i> TikTok
+      </a>
+      <a href="https://wa.me/595972504623" target="_blank" class="social-btn instagram">
+        <i class="fab fa-instagram"></i> Instagram
+      </a>
+      <a href="https://wa.me/595972504623" target="_blank" class="social-btn facebook">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </a>
+    </div>
+  </div>
+
+</div><!-- /desktop-left -->
+
+<!-- RIGHT COLUMN — ORDER -->
+<div class="desktop-right">
+<section class="section" id="order">
+  <div class="section-eyebrow">Tu selección</div>
+  <h2 class="section-title">ARMÁ TU <span class="accent">PEDIDO</span></h2>
+  <div class="section-divider"></div>
+  <p class="section-subtitle">Elegí cantidades y el total se calcula solo</p>
+
+  <div class="order-card">
+
+    <!-- GROUP 1: COMBOS -->
+    <div class="order-group">
+      <div class="group-label">
+        <i class="fas fa-star"></i>
+        <span>Combos</span>
+        <div class="group-line"></div>
+      </div>
+
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">⭐ Combo "2207"</div>
+          <div class="product-price">₲ 55.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('combo1',-1)">−</button>
+          <div class="stepper-qty" id="qty-combo1">0</div>
+          <button class="stepper-btn" onclick="change('combo1',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🔥 Dúo Dinámico</div>
+          <div class="product-price">₲ 90.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('combo2',-1)">−</button>
+          <div class="stepper-qty" id="qty-combo2">0</div>
+          <button class="stepper-btn" onclick="change('combo2',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🍺 After Office</div>
+          <div class="product-price">₲ 110.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('combo3',-1)">−</button>
+          <div class="stepper-qty" id="qty-combo3">0</div>
+          <button class="stepper-btn" onclick="change('combo3',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUP 2: PRINCIPALES -->
+    <div class="order-group">
+      <div class="group-label">
+        <i class="fas fa-fire"></i>
+        <span>Principales</span>
+        <div class="group-line"></div>
+      </div>
+
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🧀 Muzzarella Tradicional</div>
+          <div class="product-price">₲ 55.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('muzz',-1)">−</button>
+          <div class="stepper-qty" id="qty-muzz">0</div>
+          <button class="stepper-btn" onclick="change('muzz',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🍕 Pepperoni Blast</div>
+          <div class="product-price">₲ 70.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('pepperoni',-1)">−</button>
+          <div class="stepper-qty" id="qty-pepperoni">0</div>
+          <button class="stepper-btn" onclick="change('pepperoni',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🍅 Napolitana Premium</div>
+          <div class="product-price">₲ 65.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('napo',-1)">−</button>
+          <div class="stepper-qty" id="qty-napo">0</div>
+          <button class="stepper-btn" onclick="change('napo',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🧅 Fugazza Especial</div>
+          <div class="product-price">₲ 60.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('fugazza',-1)">−</button>
+          <div class="stepper-qty" id="qty-fugazza">0</div>
+          <button class="stepper-btn" onclick="change('fugazza',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🧀 Cuatro Quesos</div>
+          <div class="product-price">₲ 75.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('cuatroquesos',-1)">−</button>
+          <div class="stepper-qty" id="qty-cuatroquesos">0</div>
+          <button class="stepper-btn" onclick="change('cuatroquesos',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🐔 Pollo Catupiry</div>
+          <div class="product-price">₲ 75.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('pollo',-1)">−</button>
+          <div class="stepper-qty" id="qty-pollo">0</div>
+          <button class="stepper-btn" onclick="change('pollo',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🥦 Vegetariana 2207</div>
+          <div class="product-price">₲ 65.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('veggie',-1)">−</button>
+          <div class="stepper-qty" id="qty-veggie">0</div>
+          <button class="stepper-btn" onclick="change('veggie',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUP 3: BEBIDAS -->
+    <div class="order-group">
+      <div class="group-label">
+        <i class="fas fa-glass-water"></i>
+        <span>Bebidas</span>
+        <div class="group-line"></div>
+      </div>
+
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🥤 Gaseosa 500ml</div>
+          <div class="product-price">₲ 7.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('gasosa',-1)">−</button>
+          <div class="stepper-qty" id="qty-gasosa">0</div>
+          <button class="stepper-btn" onclick="change('gasosa',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">🍺 Cerveza Lata</div>
+          <div class="product-price">₲ 10.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('cerveza',-1)">−</button>
+          <div class="stepper-qty" id="qty-cerveza">0</div>
+          <button class="stepper-btn" onclick="change('cerveza',1)">+</button>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-info">
+          <div class="product-name">💧 Agua Mineral</div>
+          <div class="product-price">₲ 5.000 c/u</div>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" onclick="change('agua',-1)">−</button>
+          <div class="stepper-qty" id="qty-agua">0</div>
+          <button class="stepper-btn" onclick="change('agua',1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="order-summary-wrapper" id="summary-wrapper">
+      <div class="order-summary">
+        <div class="summary-title">Resumen del pedido</div>
+        <div id="summary-rows"></div>
+      </div>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="total-box">
+      <div>
+        <div class="total-label">Total a pagar</div>
+        <div class="total-hint" id="total-hint">Agregá productos 👆</div>
+      </div>
+      <div class="total-amount" id="total-display">₲ 0</div>
+    </div>
+
+    <!-- WA BUTTON -->
+    <button class="btn-wa" id="send-btn" onclick="sendWhatsApp()" disabled>
+      <i class="fab fa-whatsapp"></i>
+      Enviar Pedido por WhatsApp
+    </button>
+
+    <!-- LOCATION BUTTON -->
+    <a href="https://maps.app.goo.gl/yFP6BaSav4s9nHeB9" target="_blank" class="btn-location">
+      <i class="fas fa-map-marker-alt"></i>
+      Ir al Local
+    </a>
+
+  </div><!-- /order-card -->
+</section>
+</div><!-- /desktop-right -->
+
+</div><!-- /desktop-grid -->
+
+<!-- FIRE SEP (mobile only) -->
+<div class="fire-sep">🍕 🔥 🍕</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>© 2026 CALLE 2207 · Pizzería Artesanal a la Piedra · Todos los derechos reservados</div>
+  <div>📞 0972504623</div>
+</footer>
+
+<!-- FLOATING WA -->
+<a href="https://wa.me/595972504623" target="_blank" class="float-wa" title="Escribinos por WhatsApp">
+  <i class="fab fa-whatsapp"></i>
+</a>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const PRODUCTS = {
+    combo1:       { name: 'Combo "2207"',          price: 55000  },
+    combo2:       { name: 'Dúo Dinámico',           price: 90000  },
+    combo3:       { name: 'After Office',           price: 110000 },
+    muzz:         { name: 'Muzzarella Tradicional', price: 55000  },
+    pepperoni:    { name: 'Pepperoni Blast',        price: 70000  },
+    napo:         { name: 'Napolitana Premium',     price: 65000  },
+    fugazza:      { name: 'Fugazza Especial',       price: 60000  },
+    cuatroquesos: { name: 'Cuatro Quesos',          price: 75000  },
+    pollo:        { name: 'Pollo Catupiry',         price: 75000  },
+    veggie:       { name: 'Vegetariana 2207',       price: 65000  },
+    gasosa:       { name: 'Gaseosa 500ml',          price: 7000   },
+    cerveza:      { name: 'Cerveza Lata',           price: 10000  },
+    agua:         { name: 'Agua Mineral',           price: 5000   },
+  };
+
+  const quantities = {};
+  Object.keys(PRODUCTS).forEach(k => quantities[k] = 0);
+
+  function change(key, delta) {
+    quantities[key] = Math.max(0, quantities[key] + delta);
+    const el = document.getElementById('qty-' + key);
+    if (el) el.textContent = quantities[key];
+    updateTotal();
+  }
+
+  function addCombo(n) {
+    change('combo' + n, 1);
+    showToast('🍕 ¡Combo agregado al pedido!');
+    setTimeout(() => {
+      const el = document.getElementById('order');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 320);
+  }
+
+  function updateTotal() {
+    let total = 0;
+    const rows = [];
+
+    Object.keys(PRODUCTS).forEach(k => {
+      if (quantities[k] > 0) {
+        const sub = quantities[k] * PRODUCTS[k].price;
+        total += sub;
+        rows.push({ name: PRODUCTS[k].name, qty: quantities[k], sub });
+      }
+    });
+
+    const fmt = n => '₲\u00A0' + n.toLocaleString('es-PY');
+
+    document.getElementById('total-display').textContent = fmt(total);
+
+    const wrapper = document.getElementById('summary-wrapper');
+    const summaryRows = document.getElementById('summary-rows');
+    const hint = document.getElementById('total-hint');
+    const btn  = document.getElementById('send-btn');
+
+    if (rows.length > 0) {
+      summaryRows.innerHTML = rows.map((r, i) =>
+        `<div class="summary-row" style="animation-delay:${i * 40}ms">
+          <span class="s-name">${r.name} <span style="opacity:.5">×${r.qty}</span></span>
+          <span class="s-price">${fmt(r.sub)}</span>
+        </div>`
+      ).join('');
+      wrapper.classList.add('visible');
+      hint.style.display = 'none';
+      btn.disabled = false;
+    } else {
+      wrapper.classList.remove('visible');
+      hint.style.display = '';
+      btn.disabled = true;
+    }
+  }
+
+  function sendWhatsApp() {
+    const fmt = n => '₲ ' + n.toLocaleString('es-PY');
+    let total = 0;
+    const lines = ['🍕 *¡Hola CALLE 2207!* Quiero hacer un pedido:\n'];
+
+    Object.keys(PRODUCTS).forEach(k => {
+      if (quantities[k] > 0) {
+        const sub = quantities[k] * PRODUCTS[k].price;
+        total += sub;
+        lines.push(`• ${PRODUCTS[k].name} × ${quantities[k]} — ${fmt(sub)}`);
+      }
+    });
+
+    lines.push('');
+    lines.push(`🔥 *Total: ${fmt(total)}*`);
+    lines.push('');
+    lines.push('📍 *Dirección de entrega:* [escribí tu dirección acá]');
+
+    window.open(
+      'https://wa.me/595972504623?text=' + encodeURIComponent(lines.join('\n')),
+      '_blank'
+    );
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
